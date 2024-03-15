@@ -3,19 +3,19 @@ require 'rails_helper'
 RSpec.describe Api::V1::PotatoPricesController, type: :controller do
   describe 'GET #index' do
     context 'when providing a valid date' do
-      let(:date) { Date.new(2024, 3, 1) }
+      let(:date) { Date.today }
 
       before do
-        get :index, params: { date: }
+        PotatoPrice.create(time: date.beginning_of_day + 1.hour, value: 50.0)
+        PotatoPrice.create(time: date.end_of_day - 1.hour, value: 60.0)
       end
 
       it 'returns a success response' do
+        get :index, params: { date: }
+
         expect(response).to have_http_status(:success)
       end
       it 'returns potato prices for the specified date' do
-        date = Date.today
-        PotatoPrice.create(time: date.beginning_of_day + 1.hour, value: 50.0)
-        PotatoPrice.create(time: date.end_of_day - 1.hour, value: 60.0)
         get :index, params: { date: }
 
         json_response = JSON.parse(response.body)
